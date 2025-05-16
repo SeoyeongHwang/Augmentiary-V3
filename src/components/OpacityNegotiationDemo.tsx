@@ -139,7 +139,7 @@ async function fetchAug(selected: string, before: string, after: string) {
                 suppressContentEditableWarning
                 onInput={handleInput}
             >
-                오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.
+                요즘은 시간을 어떻게 써야 할지 자주 고민하게 된다. 해야 할 일은 분명 있는데, 막상 집중이 잘 안 될 때가 많다. 그럴 때마다 ‘내가 지금 잘하고 있는 걸까’ 하는 생각이 든다. 꼭 답을 찾지 않아도 괜찮다고는 하지만, 가끔은 방향이 있었으면 좋겠다.
             </div>
 
             {showBtn && (
