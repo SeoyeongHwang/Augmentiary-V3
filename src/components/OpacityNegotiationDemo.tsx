@@ -138,11 +138,24 @@ async function fetchAug(selected: string, before: string, after: string) {
             ref={editorRef}
             contentEditable
             onMouseUp={handleMouseUp}
-            className="border p-3 h-[220px] w-full overflow-auto rounded-md"
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+                     p-4 h-[220px] w-full overflow-auto rounded-lg shadow-sm 
+                     focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                     transition-all duration-200 ease-in-out
+                     text-gray-800 dark:text-gray-200
+                     hover:border-blue-300 dark:hover:border-blue-700"
             suppressContentEditableWarning
             onInput={handleInput}
+            style={{
+                outline: 'none',
+                fontSize: '1rem',
+                lineHeight: '1.6',
+            }}
         >
-            오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.
+            {editorRef.current?.textContent?.trim() === '' ? 
+                <span className="text-gray-400 dark:text-gray-600">여기에 텍스트를 입력하세요...</span> 
+                : '오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.'
+            }
         </div>
 
         {showBtn && (

@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const promptUser =
     `--- BEFORE ---\n${before}\n\n<< SELECTED >>\n${context}\n\n--- AFTER ---\n${after}\n` +
-    "앞, 뒤 맥락을 고려하여, 사용자의 자기 이해와 감정조절에 도움될 수 있도록 'SELECTED' 부분만 증강해줘. 증강된 부분만 응답해줘.";
+    "일기의 앞, 뒤 맥락을 고려하여, 사용자의 자기이해와 성찰에 도움될 수 있도록 'SELECTED' 부분에 예상치 못한 통찰을 추가하여 증강해줘. 증강된 부분만 응답해줘.";
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
