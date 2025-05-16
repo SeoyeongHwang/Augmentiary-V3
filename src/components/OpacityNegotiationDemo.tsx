@@ -16,6 +16,8 @@ import React, { useState, useRef, useEffect } from "react";
 
 export default function OpacityNegotiationDemo() {
     const editorRef = useRef<HTMLDivElement>(null);
+    const [text, setText] = useState<string>('오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.');
+    const [isEmpty, setIsEmpty] = useState(false);
 
     /* ① 버튼 위치·표시 상태 ------------------------------------- */
     const btnRef  = useRef<HTMLButtonElement>(null);
@@ -103,6 +105,10 @@ async function fetchAug(selected: string, before: string, after: string) {
 
   // on input, for every span[data-ai] count edits & raise opacity
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const currentText = e.currentTarget.textContent || '';
+    setText(currentText);
+    setIsEmpty(currentText.trim() === '');
+
     const spans = editorRef.current?.querySelectorAll("span[data-ai]") || [];
     spans.forEach((span) => {
         /* ① 편집 횟수 누적 ---------------------------------- */
@@ -126,50 +132,55 @@ async function fetchAug(selected: string, before: string, after: string) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-        <div className="w-full max-w-2xl p-4">
-        <h2 className="text-lg font-semibold mb-2">✨ In‑place Opacity Negotiation Demo v4</h2>
-        <p className="mt-3 text-xs text-gray-500">
-            • 텍스트를 드래그하면 <strong>AI 증강</strong> 버튼이 뜹니다.<br />
-            • 삽입된 회색 AI 문장은 편집할수록 진해집니다(0.05씩).<br />
-            • AI 문장 안을 다시 드래그해 증강하면, 새 회색 레이어가 추가됩니다.
-        </p>
-        <div
-            ref={editorRef}
-            contentEditable
-            onMouseUp={handleMouseUp}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-                     p-4 h-[220px] w-full overflow-auto rounded-lg shadow-sm 
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                     transition-all duration-200 ease-in-out
-                     text-gray-800 dark:text-gray-200
-                     hover:border-blue-300 dark:hover:border-blue-700"
-            suppressContentEditableWarning
-            onInput={handleInput}
-            style={{
-                outline: 'none',
-                fontSize: '1rem',
-                lineHeight: '1.6',
-            }}
-        >
-            {editorRef.current?.textContent?.trim() === '' ? 
-                <span className="text-gray-400 dark:text-gray-600">여기에 텍스트를 입력하세요...</span> 
-                : '오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.'
-            }
-        </div>
-
-        {showBtn && (
-            <button
-            style={{ top: btnPos.y + 6, left: btnPos.x + 6 }}
-            className="fixed px-3 py-1 bg-indigo-600 text-white text-sm rounded-md shadow hover:bg-indigo-700 transition"
-            onMouseDown={(e) => {
-                e.preventDefault();
-                augment();
-            }}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="w-full max-w-2xl p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+            <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">✨ In‑place Opacity Negotiation Demo v4</h2>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                • 텍스트를 드래그하면 <strong>AI 증강</strong> 버튼이 뜹니다.<br />
+                • 삽입된 회색 AI 문장은 편집할수록 진해집니다(0.05씩).<br />
+                • AI 문장 안을 다시 드래그해 증강하면, 새 회색 레이어가 추가됩니다.
+            </p>
+            <div
+                ref={editorRef}
+                contentEditable
+                onMouseUp={handleMouseUp}
+                className="min-h-[220px] w-full p-5 
+                         bg-white dark:bg-gray-800 
+                         border-2 border-gray-200 dark:border-gray-700
+                         rounded-lg shadow-inner
+                         focus:border-blue-400 dark:focus:border-blue-500 
+                         focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800
+                         hover:border-gray-300 dark:hover:border-gray-600
+                         transition-all duration-200"
+                suppressContentEditableWarning
+                onInput={handleInput}
+                style={{
+                    outline: 'none',
+                    fontSize: '1rem',
+                    lineHeight: '1.8',
+                    whiteSpace: 'pre-wrap',
+                    overflowY: 'auto',
+                }}
             >
-            AI 증강
-            </button>
-        )}
+                오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.
+            </div>
+
+            {showBtn && (
+                <button
+                    style={{ top: btnPos.y + 6, left: btnPos.x + 6 }}
+                    className="fixed px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 
+                             text-white text-sm font-medium rounded-lg shadow-lg 
+                             hover:from-indigo-600 hover:to-purple-700 
+                             focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                             transform hover:scale-105 transition-all duration-200"
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        augment();
+                    }}
+                >
+                    AI 증강
+                </button>
+            )}
         </div>
     </div>
   );
