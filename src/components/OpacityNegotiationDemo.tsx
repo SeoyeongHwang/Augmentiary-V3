@@ -101,9 +101,8 @@ async function fetchAug(selected: string, before: string, after: string) {
         - 지수·로그식 등 다른 수식으로 교체해도 됨
         */
         const OPACITY_START = 0.35;                // TODO: 시작값
-        const OPACITY_STEP  = 0.05;                // TODO: 증가폭
-        const newOpacity = Math.min(1,
-                                    OPACITY_START + edit * OPACITY_STEP);
+        const OPACITY_STEP  = 0.025;                // TODO: 증가폭
+        const newOpacity = Math.min(1, OPACITY_START + edit * OPACITY_STEP);
 
         /* ③ 실제 적용 -------------------------------------- */
         (span as HTMLElement).style.opacity = newOpacity.toString();
