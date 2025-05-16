@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     "Use BEFORE and AFTER strictly as background context.\n" +
     "Generate an augmented version of SELECTED that:\n" +
     "  -Conveys new insight in EXACTLY two Korean sentences.\n" +
-    "  -Do not use overlap sentence so that the augmented content flow naturally with the BEFORE and AFTER entries.\n" +
+    "  -Do not use overlap sentence from BEFORE and AFTER so that the augmented content flow naturally with the BEFORE and AFTER entries.\n" +
     "  -Flows naturally with the surrounding text.\n";
 
   const promptUser =
