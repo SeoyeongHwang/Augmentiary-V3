@@ -20,9 +20,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     "You are a reflective-writing coach.\n" +
     "Use BEFORE and AFTER strictly as background context.\n" +
     "Generate an augmented version of SELECTED that:\n" +
-    "  -Conveys new insight and meaning for serendipitous discovery.\n" +
-    "  -Do not use overlap sentence from BEFORE and AFTER so that the augmented content flow naturally with the BEFORE and AFTER entries.\n" +
-    "  -Flows naturally with the surrounding text.\n";
+    "  -Conveys new insight and meaning for unexpected revelation.\n" +
+    "  -Do not use overlap sentence from BEFORE and AFTER so that the augmented content flow naturally with other entries.\n" +
+    "  -Use a tone and vocabulary that matches the user's writing.\n";
 
   const promptUser =
     `--- BEFORE ---\n${before}\n\n<< SELECTED >>\n${context}\n\n--- AFTER ---\n${after}\n` +
@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { role: 'system', content: promptSystem },
       { role: 'user', content: promptUser },
     ],
-    temperature: 0.7,
+    temperature: 0.8,
   });
 
   res.status(200).json({ text: completion.choices[0].message.content });
