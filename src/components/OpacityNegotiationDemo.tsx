@@ -28,8 +28,8 @@ export default function OpacityNegotiationDemo() {
     function showButton(sel: Selection) {
         const rect = sel.getRangeAt(0).getBoundingClientRect();
         setBtnPos({
-        x: rect.right + window.scrollX + 6,
-        y: rect.top   + window.scrollY - 4,
+            x: rect.right + window.scrollX + 6,
+            y: rect.top + window.scrollY - 4,
         });
         setShowBtn(true);
     }
@@ -37,10 +37,11 @@ export default function OpacityNegotiationDemo() {
     /* ③ 드래그가 끝날 때 호출 ---------------------------------- */
     function handleMouseUp() {
         const sel = window.getSelection();
-        if (sel && !sel.isCollapsed && editorRef.current?.contains(sel.anchorNode))
-        showButton(sel);
-        else
-        setShowBtn(false);
+        if (sel && !sel.isCollapsed && editorRef.current?.contains(sel.anchorNode)) {
+            showButton(sel);
+        } else {
+            setShowBtn(false);
+        }
     }
 
   // helper: 실제 API 호출
@@ -59,28 +60,6 @@ async function fetchAug(selected: string, before: string, after: string) {
       const { text } = await res.json();
       return ` <span data-ai="true" style="opacity:0.35">${text}</span>`;
   }
-  // show floating button when user selects text
-  const handleSelectionChange = () => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) {
-      setShowBtn(false);
-      return;
-    }
-    // only show inside editor
-    if (!editorRef.current || !editorRef.current.contains(sel.anchorNode)) {
-      setShowBtn(false);
-      return;
-    }
-    const range = sel.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    setBtnPos({ x: rect.right + window.scrollX, y: rect.bottom + window.scrollY });
-    setShowBtn(true);
-  };
-
-  useEffect(() => {
-    document.addEventListener("selectionchange", handleSelectionChange);
-    return () => document.removeEventListener("selectionchange", handleSelectionChange);
-  }, []);
 
   // insert AI span directly after current selection
   const augment = async () => {
@@ -132,10 +111,10 @@ async function fetchAug(selected: string, before: string, after: string) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="w-full max-w-2xl p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-            <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">✨ In‑place Opacity Negotiation Demo v4</h2>
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 md:px-8">
+        <div className="w-full max-w-6xl p-8 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">✨ In‑place Opacity Negotiation Demo v4</h2>
+            <p className="mb-6 text-base text-gray-600">
                 • 텍스트를 드래그하면 <strong>AI 증강</strong> 버튼이 뜹니다.<br />
                 • 삽입된 회색 AI 문장은 편집할수록 진해집니다(0.05씩).<br />
                 • AI 문장 안을 다시 드래그해 증강하면, 새 회색 레이어가 추가됩니다.
@@ -144,24 +123,22 @@ async function fetchAug(selected: string, before: string, after: string) {
                 ref={editorRef}
                 contentEditable
                 onMouseUp={handleMouseUp}
-                className="editor-content min-h-[220px] w-full p-5 
-                         bg-white dark:bg-gray-800 
-                         border-2 border-gray-200 dark:border-gray-700
-                         rounded-lg shadow-inner
-                         focus:border-blue-400 dark:focus:border-blue-500 
-                         focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800
-                         hover:border-gray-300 dark:hover:border-gray-600
+                className="editor-content w-full p-10
+                         bg-white
+                         border border-gray-300
+                         rounded-xl
+                         shadow-[0_2px_8px_rgba(0,0,0,0.08)]
+                         focus:border-blue-500
+                         focus:ring-1 focus:ring-blue-500
+                         hover:border-gray-400
                          transition-all duration-200
-                         text-gray-800 dark:text-gray-200"
+                         text-[1.2rem] leading-[2]
+                         min-h-[800px] max-h-[85vh]
+                         outline-none
+                         whitespace-pre-wrap
+                         overflow-y-auto"
                 suppressContentEditableWarning
                 onInput={handleInput}
-                style={{
-                    outline: 'none',
-                    fontSize: '1rem',
-                    lineHeight: '1.8',
-                    whiteSpace: 'pre-wrap',
-                    overflowY: 'auto',
-                }}
             >
                 오늘 아침, 나는 중요한 발표를 준비하며 극도의 긴장감을 느꼈다. 하지만 결국 무사히 발표를 마쳤다.
             </div>
@@ -169,18 +146,22 @@ async function fetchAug(selected: string, before: string, after: string) {
             {showBtn && (
                 <button
                     ref={btnRef}
+                    className="augment-button fixed
+                             px-4 py-2 
+                             bg-blue-600
+                             text-white
+                             text-sm font-bold rounded-lg
+                             shadow-lg 
+                             hover:bg-blue-700
+                             focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                             transform hover:scale-105 transition-all duration-200
+                             z-50"
                     style={{ 
-                        position: 'fixed',
                         top: btnPos.y + 6, 
                         left: btnPos.x + 6,
-                        zIndex: 50 
+                        color: 'white',  
+                        backgroundColor: '#2563eb'
                     }}
-                    className="augment-button px-4 py-2 
-                             bg-gradient-to-r from-indigo-500 to-purple-600 
-                             text-white text-sm font-medium rounded-lg shadow-lg 
-                             hover:from-indigo-600 hover:to-purple-700 
-                             focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-                             transform hover:scale-105 transition-all duration-200"
                     onMouseDown={(e) => {
                         e.preventDefault();
                         augment();
