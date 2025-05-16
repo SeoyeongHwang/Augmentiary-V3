@@ -112,11 +112,11 @@ async function fetchAug(selected: string, before: string, after: string) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 md:px-8">
         <div className="w-full max-w-6xl p-8 bg-white rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">✨ In‑place Opacity Negotiation Demo v4</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">✨ In‑place LLM-generated Text Negotiation Demo</h2>
             <p className="mb-6 text-base text-gray-600">
                 • 텍스트를 드래그하면 <strong>AI 증강</strong> 버튼이 뜹니다.<br />
-                • 삽입된 회색 AI 문장은 편집할수록 진해집니다(0.05씩).<br />
-                • AI 문장 안을 다시 드래그해 증강하면, 새 회색 레이어가 추가됩니다.
+                • AI 문장은 연하게 삽입되며, 편집할수록 진해집니다.<br />
+                • AI 문장 안을 다시 드래그해 증강하면 더 연해집니다.
             </p>
             <div
                 ref={editorRef}
