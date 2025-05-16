@@ -43,7 +43,7 @@ export default function OpacityNegotiationDemo() {
 
   // helper: 실제 API 호출
 async function fetchAug(selected: string, before: string, after: string) {
-    const res = await fetch("/augment", {
+    const res = await fetch("/api/augment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
