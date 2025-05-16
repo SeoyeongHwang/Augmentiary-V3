@@ -144,14 +144,15 @@ async function fetchAug(selected: string, before: string, after: string) {
                 ref={editorRef}
                 contentEditable
                 onMouseUp={handleMouseUp}
-                className="min-h-[220px] w-full p-5 
+                className="editor-content min-h-[220px] w-full p-5 
                          bg-white dark:bg-gray-800 
                          border-2 border-gray-200 dark:border-gray-700
                          rounded-lg shadow-inner
                          focus:border-blue-400 dark:focus:border-blue-500 
                          focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800
                          hover:border-gray-300 dark:hover:border-gray-600
-                         transition-all duration-200"
+                         transition-all duration-200
+                         text-gray-800 dark:text-gray-200"
                 suppressContentEditableWarning
                 onInput={handleInput}
                 style={{
@@ -167,8 +168,15 @@ async function fetchAug(selected: string, before: string, after: string) {
 
             {showBtn && (
                 <button
-                    style={{ top: btnPos.y + 6, left: btnPos.x + 6 }}
-                    className="fixed px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 
+                    ref={btnRef}
+                    style={{ 
+                        position: 'fixed',
+                        top: btnPos.y + 6, 
+                        left: btnPos.x + 6,
+                        zIndex: 50 
+                    }}
+                    className="augment-button px-4 py-2 
+                             bg-gradient-to-r from-indigo-500 to-purple-600 
                              text-white text-sm font-medium rounded-lg shadow-lg 
                              hover:from-indigo-600 hover:to-purple-700 
                              focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500

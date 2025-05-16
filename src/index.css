@@ -1,3 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.editor-content {
+    @apply text-gray-800 dark:text-gray-200;
+}
+
+.editor-content:focus {
+    @apply outline-none ring-2 ring-blue-200 dark:ring-blue-800;
+}
+
+.augment-button {
+    @apply shadow-lg;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
