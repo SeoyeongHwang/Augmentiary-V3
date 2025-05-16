@@ -17,13 +17,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   const promptSystem =
-    "You are a reflective-writing coach. " +
-    "Use BEFORE/AFTER only for context, but create TWO Korean sentences " +
-    "that replace SELECTED without repeating words or meanings from BEFORE/AFTER.";
+    "You are a reflective-writing coach.\n" +
+    "Use BEFORE and AFTER strictly as background context.\n" +
+    "Generate an augmented version of SELECTED that:\n" +
+    "  -Conveys new insight in EXACTLY two Korean sentences.\n" +
+    "  -Do not use overlap sentence so that the augmented content flow naturally with the BEFORE and AFTER entries.\n" +
+    "  -Flows naturally with the surrounding text.\n";
 
   const promptUser =
-    `BEFORE: ${before}\nSELECTED: ${context}\nAFTER: ${after}\n\n` +
-    "위 지침에 따라 증강해줘.";
+    `--- BEFORE ---\n${before}\n\n<< SELECTED >>\n${context}\n\n--- AFTER ---\n${after}\n` +
+    "앞, 뒤 맥락을 고려하여, 위 'SELECTED' 부분만 긍정적인 재해석으로 증강해줘.";
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
