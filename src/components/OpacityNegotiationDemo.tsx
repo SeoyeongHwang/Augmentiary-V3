@@ -46,33 +46,53 @@ export default function OpacityNegotiationDemo() {
 
   // helper: 실제 API 호출
 async function fetchAug(selected: string, before: string, after: string) {
-    const res = await fetch("/api/augment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          context: selected,          // 드래그한 부분
-          before:  before,
-          after:   after,
-        }),
-      });
-    
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      const { text } = await res.json();
-      return ` <span data-ai="true" style="opacity:0.35">${text}</span>`;
-  }
+    try {
+        console.log('🌐 API 호출 시작');
+        const res = await fetch("http://localhost:3000/augment", {  // Express 서버 포트로 수정
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                context: selected,
+                before: before,
+                after: after,
+            }),
+        });
+        
+        if (!res.ok) {
+            console.error('❌ API 응답 에러:', res.status, res.statusText);
+            throw new Error(`API ${res.status}: ${res.statusText}`);
+        }
+        
+        const { text } = await res.json();
+        console.log('✅ API 응답 성공:', text);
+        const uniqueId = `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        return ` <span data-ai="true" data-id="${uniqueId}" style="opacity:0.35">${text}</span>`;
+    } catch (error) {
+        console.error('❌ API 호출 실패:', error);
+        throw error;
+    }
+}
 
   // insert AI span directly after current selection
   const augment = async () => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed) return;
+    
+    console.log('✨ Starting augmentation');
     const range = sel.getRangeAt(0);
-    range.collapse(false); // place cursor at end of selection
-    const fullText = editorRef.current!.innerText;   // 전체 엔트리
+    range.collapse(false);
+    
+    const fullText = editorRef.current!.innerText;
     const { startOffset, endOffset } = range;
-    const before = fullText.slice(Math.max(0, startOffset - 100), startOffset); 
-    const after  = fullText.slice(endOffset, endOffset + 100);  
+    const before = fullText.slice(Math.max(0, startOffset - 100), startOffset);
+    const after = fullText.slice(endOffset, endOffset + 100);
     const selected = window.getSelection()!.toString();
-    const aiHtml   = await fetchAug(selected, before, after);
+    
+    console.log('📝 Selected text:', selected);
+    
+    const aiHtml = await fetchAug(selected, before, after);
+    console.log('🤖 AI response:', aiHtml);
+    
     const temp = document.createElement("div");
     temp.innerHTML = aiHtml;
     const frag = document.createDocumentFragment();
@@ -88,24 +108,48 @@ async function fetchAug(selected: string, before: string, after: string) {
     setText(currentText);
     setIsEmpty(currentText.trim() === '');
 
-    const spans = editorRef.current?.querySelectorAll("span[data-ai]") || [];
-    spans.forEach((span) => {
-        /* ① 편집 횟수 누적 ---------------------------------- */
-        const edit = Number(span.getAttribute("data-edit")) + 1;
-        span.setAttribute("data-edit", String(edit));
+    // 현재 선택된 AI 생성 문장 찾기
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return;
 
-        /* ② ★투명도 계산식 수정 지점★
-        ---------------------------------------------------
-        newOpacity = 시작값 + (편집횟수 × 증가폭)
-        - 시작값, 증가폭을 바꾸거나
-        - 지수·로그식 등 다른 수식으로 교체해도 됨
-        */
-        const OPACITY_START = 0.35;                // TODO: 시작값
-        const OPACITY_STEP  = 0.015;                // TODO: 증가폭
-        const newOpacity = Math.min(1, OPACITY_START + edit * OPACITY_STEP);
+    const range = sel.getRangeAt(0);
+    console.log('🔍 Selection range:', range.toString());
 
-        /* ③ 실제 적용 -------------------------------------- */
-        (span as HTMLElement).style.opacity = newOpacity.toString();
+    // 선택 영역 내의 모든 AI 생성 문장 찾기
+    const selectedSpans = new Set<HTMLElement>();
+    const walker = document.createTreeWalker(
+      range.commonAncestorContainer,
+      NodeFilter.SHOW_ELEMENT,
+      {
+        acceptNode: (node) => {
+          if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
+            return NodeFilter.FILTER_ACCEPT;
+          }
+          return NodeFilter.FILTER_SKIP;
+        }
+      }
+    );
+
+    let currentNode;
+    while (currentNode = walker.nextNode()) {
+      if (currentNode instanceof HTMLElement) {
+        selectedSpans.add(currentNode);
+      }
+    }
+
+    console.log('📝 Found AI spans:', selectedSpans.size);
+
+    // 각 선택된 AI 문장의 투명도 업데이트
+    selectedSpans.forEach(span => {
+      const edit = Number(span.getAttribute("data-edit") || "0") + 1;
+      span.setAttribute("data-edit", String(edit));
+
+      const OPACITY_START = 0.35;
+      const OPACITY_STEP  = 0.015;
+      const newOpacity = Math.min(1, OPACITY_START + edit * OPACITY_STEP);
+
+      console.log(`🎨 Updating opacity for span ${span.getAttribute('data-id')}: ${newOpacity}`);
+      span.style.opacity = newOpacity.toString();
     });
   };
 
@@ -139,7 +183,7 @@ async function fetchAug(selected: string, before: string, after: string) {
                 suppressContentEditableWarning
                 onInput={handleInput}
             >
-                요즘은 시간을 어떻게 써야 할지 자주 고민하게 된다. 해야 할 일은 분명 있는데, 막상 집중이 잘 안 될 때가 많다. 그럴 때마다 ‘내가 지금 잘하고 있는 걸까’ 하는 생각이 든다. 꼭 답을 찾지 않아도 괜찮다고는 하지만, 가끔은 방향이 있었으면 좋겠다.
+                요즘은 시간을 어떻게 써야 할지 자주 고민하게 된다. 해야 할 일은 분명 있는데, 막상 집중이 잘 안 될 때가 많다. 그럴 때마다 '내가 지금 잘하고 있는 걸까' 하는 생각이 든다. 꼭 답을 찾지 않아도 괜찮다고는 하지만, 가끔은 방향이 있었으면 좋겠다.
             </div>
 
             {showBtn && (
