@@ -48,7 +48,14 @@ export default function OpacityNegotiationDemo() {
 async function fetchAug(selected: string, before: string, after: string) {
     try {
         console.log('🌐 API 호출 시작');
-        const res = await fetch("http://localhost:3000/augment", {  // Express 서버 포트로 수정
+        // Vercel 배포 환경에서는 /api/augment로 요청
+        const apiUrl = process.env.NODE_ENV === 'production' 
+            ? '/api/augment'  // Vercel 배포 환경
+            : 'http://localhost:3000/augment';  // 로컬 개발 환경
+
+        console.log('📡 API URL:', apiUrl);
+        
+        const res = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
