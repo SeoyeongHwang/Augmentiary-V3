@@ -48,7 +48,6 @@ export default function OpacityNegotiationDemo() {
 async function fetchAug(selected: string, before: string, after: string) {
     try {
         console.log('🌐 API 호출 시작');
-        // Vercel 배포 환경에서는 /api/augment로 요청
         const apiUrl = process.env.NODE_ENV === 'production' 
             ? '/api/augment'  // Vercel 배포 환경
             : 'http://localhost:3000/augment';  // 로컬 개발 환경
@@ -72,8 +71,18 @@ async function fetchAug(selected: string, before: string, after: string) {
         
         const { text } = await res.json();
         console.log('✅ API 응답 성공:', text);
-        const uniqueId = `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        return ` <span data-ai="true" data-id="${uniqueId}" style="opacity:0.35">${text}</span>`;
+
+        // 문장 단위로 분리 (마침표, 물음표, 느낌표로 구분)
+        const sentences = text.split(/(?<=[.!?])\s+/).filter((s: string) => s.trim());
+        
+        // 각 문장을 개별 span으로 감싸기
+        const spans = sentences.map((sentence: string) => {
+            const uniqueId = `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            return `<span data-ai="true" data-id="${uniqueId}" style="opacity:0.35">${sentence}</span>`;
+        });
+
+        // 문장 사이에 공백 추가하여 반환
+        return ' ' + spans.join(' ') + ' ';
     } catch (error) {
         console.error('❌ API 호출 실패:', error);
         throw error;
