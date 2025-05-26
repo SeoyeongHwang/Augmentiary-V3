@@ -111,53 +111,71 @@ async function fetchAug(selected: string, before: string, after: string) {
 
   // on input, for every span[data-ai] count edits & raise opacity
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    console.log('📝 Input event triggered');
+    
     const currentText = e.currentTarget.textContent || '';
     setText(currentText);
     setIsEmpty(currentText.trim() === '');
 
     // 현재 선택된 AI 생성 문장 찾기
     const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) return;
+    if (!sel || sel.isCollapsed) {
+      console.log('ℹ️ No selection or collapsed selection');
+      return;
+    }
 
     const range = sel.getRangeAt(0);
     console.log('🔍 Selection range:', range.toString());
+    console.log('📍 Selection start:', range.startContainer);
+    console.log('📍 Selection end:', range.endContainer);
 
-    // 선택 영역 내의 모든 AI 생성 문장 찾기
-    const selectedSpans = new Set<HTMLElement>();
-    const walker = document.createTreeWalker(
-      range.commonAncestorContainer,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
-            return NodeFilter.FILTER_ACCEPT;
-          }
-          return NodeFilter.FILTER_SKIP;
-        }
+    // 선택 영역이 포함된 AI 생성 문장 찾기
+    let selectedSpan: HTMLElement | null = null;
+    
+    // 1. 선택 영역의 시작점이 있는 AI 생성 문장 찾기
+    let node: Node | null = range.startContainer;
+    while (node && node !== editorRef.current) {
+      console.log('🔎 Checking node:', node);
+      if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
+        selectedSpan = node;
+        console.log('✅ Found AI span at start:', node.getAttribute('data-id'));
+        break;
       }
-    );
+      node = node.parentElement;
+    }
 
-    let currentNode;
-    while (currentNode = walker.nextNode()) {
-      if (currentNode instanceof HTMLElement) {
-        selectedSpans.add(currentNode);
+    // 2. 선택 영역의 끝점이 있는 AI 생성 문장 찾기
+    if (!selectedSpan) {
+      node = range.endContainer;
+      while (node && node !== editorRef.current) {
+        console.log('🔎 Checking node:', node);
+        if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
+          selectedSpan = node;
+          console.log('✅ Found AI span at end:', node.getAttribute('data-id'));
+          break;
+        }
+        node = node.parentElement;
       }
     }
 
-    console.log('📝 Found AI spans:', selectedSpans.size);
-
-    // 각 선택된 AI 문장의 투명도 업데이트
-    selectedSpans.forEach(span => {
-      const edit = Number(span.getAttribute("data-edit") || "0") + 1;
-      span.setAttribute("data-edit", String(edit));
+    if (selectedSpan) {
+      console.log('📝 Found AI span:', selectedSpan.getAttribute('data-id'));
+      console.log('📝 Current opacity:', selectedSpan.style.opacity);
+      
+      // 편집 횟수 증가 및 투명도 업데이트
+      const edit = Number(selectedSpan.getAttribute("data-edit") || "0") + 1;
+      selectedSpan.setAttribute("data-edit", String(edit));
 
       const OPACITY_START = 0.35;
       const OPACITY_STEP  = 0.015;
       const newOpacity = Math.min(1, OPACITY_START + edit * OPACITY_STEP);
 
-      console.log(`🎨 Updating opacity for span ${span.getAttribute('data-id')}: ${newOpacity}`);
-      span.style.opacity = newOpacity.toString();
-    });
+      console.log(`🎨 Updating opacity for span ${selectedSpan.getAttribute('data-id')}: ${newOpacity}`);
+      selectedSpan.style.opacity = newOpacity.toString();
+      console.log('📝 New opacity:', selectedSpan.style.opacity);
+    } else {
+      console.log('ℹ️ No AI span found in selection');
+    }
   };
 
   return (
