@@ -119,39 +119,49 @@ async function fetchAug(selected: string, before: string, after: string) {
 
     // 현재 선택된 AI 생성 문장 찾기
     const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) {
-      console.log('ℹ️ No selection or collapsed selection');
-      return;
-    }
+    if (!sel) return;
 
-    const range = sel.getRangeAt(0);
-    console.log('🔍 Selection range:', range.toString());
-    console.log('📍 Selection start:', range.startContainer);
-    console.log('📍 Selection end:', range.endContainer);
-
-    // 선택 영역이 포함된 AI 생성 문장 찾기
     let selectedSpan: HTMLElement | null = null;
     
-    // 1. 선택 영역의 시작점이 있는 AI 생성 문장 찾기
-    let node: Node | null = range.startContainer;
-    while (node && node !== editorRef.current) {
-      console.log('🔎 Checking node:', node);
-      if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
-        selectedSpan = node;
-        console.log('✅ Found AI span at start:', node.getAttribute('data-id'));
-        break;
-      }
-      node = node.parentElement;
-    }
+    // 1. 선택 영역이 있는 경우
+    if (!sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      console.log('🔍 Selection range:', range.toString());
 
-    // 2. 선택 영역의 끝점이 있는 AI 생성 문장 찾기
-    if (!selectedSpan) {
-      node = range.endContainer;
+      // 선택 영역의 시작점이 있는 AI 생성 문장 찾기
+      let node: Node | null = range.startContainer;
       while (node && node !== editorRef.current) {
-        console.log('🔎 Checking node:', node);
         if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
           selectedSpan = node;
-          console.log('✅ Found AI span at end:', node.getAttribute('data-id'));
+          console.log('✅ Found AI span in selection:', node.getAttribute('data-id'));
+          break;
+        }
+        node = node.parentElement;
+      }
+
+      // 선택 영역의 끝점이 있는 AI 생성 문장 찾기
+      if (!selectedSpan) {
+        node = range.endContainer;
+        while (node && node !== editorRef.current) {
+          if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
+            selectedSpan = node;
+            console.log('✅ Found AI span in selection:', node.getAttribute('data-id'));
+            break;
+          }
+          node = node.parentElement;
+        }
+      }
+    } 
+    // 2. 선택 영역이 없는 경우 (커서만 있는 경우)
+    else {
+      const range = sel.getRangeAt(0);
+      let node: Node | null = range.startContainer;
+      
+      // 커서가 있는 노드에서 시작해서 부모 노드를 따라 올라가며 AI 생성 문장 찾기
+      while (node && node !== editorRef.current) {
+        if (node instanceof HTMLElement && node.hasAttribute('data-ai')) {
+          selectedSpan = node;
+          console.log('✅ Found AI span at cursor:', node.getAttribute('data-id'));
           break;
         }
         node = node.parentElement;
@@ -174,7 +184,7 @@ async function fetchAug(selected: string, before: string, after: string) {
       selectedSpan.style.opacity = newOpacity.toString();
       console.log('📝 New opacity:', selectedSpan.style.opacity);
     } else {
-      console.log('ℹ️ No AI span found in selection');
+      console.log('ℹ️ No AI span found at current position');
     }
   };
 
